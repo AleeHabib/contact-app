@@ -1,14 +1,8 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
-contacts = [
-    {"name": "Ali Habib", "no": "03313568393"},
-    {"name": "Maryam Hayat", "no": "03415947090"},
-    {"name": "Habib Hussain", "no": "03212727914"},
-]
-
-# contacts = []
+contacts = []
 
 
 @app.route("/")
@@ -17,8 +11,15 @@ def home():
     return render_template("home.html")
 
 
-@app.route("/add")  # adds a new contact
+@app.route("/add", methods=["GET", "POST"])
 def add_contact():
+    if request.method == "POST":
+        name = request.form["name"]
+        number = request.form["number"]
+        contacts.append({"name": name, "no": number})
+        return redirect(
+            url_for("read_contacts")
+        )  # user will be redirected to the contacts page
     return render_template("add.html")
 
 

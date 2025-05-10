@@ -16,7 +16,7 @@
             font-family: Arial, sans-serif;
         }
 
-        .btn {
+        .top-btn {
             display: inline-block;
             padding: 10px 20px;
             background-color: #000000;
@@ -25,12 +25,65 @@
             border-radius: 5px;
             margin-top: 15px;
         }
+
+        .button-container a {
+            margin: 15px
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .form-container h3 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .custom-btn {
+            width: 107%;
+            padding: 10px 20px;
+            background-color: #000000;
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+        }
     </style>
 </head>
 
 <body>
-    <h3>This page will add a new contact</h3>
-    <a href="{{url_for('home')}}" class="btn">Home</a>
+    <h2>Add a new contact</h2>
+    <div class="button-container">
+        <a href="{{url_for('home')}}" class="top-btn">Home</a>
+        <a href="{{url_for('read_contacts')}}" class="top-btn">Read</a>
+        <a href="{{url_for('update_contact')}}" class="top-btn">Update</a>
+        <a href="{{url_for('delete_contact')}}" class="top-btn">Delete</a>
+    </div>
+    <form class="form-container" method="POST" action="{{ url_for('add_contact') }}">
+        <input type="text" name="name" placeholder="Enter Name" required>
+        <input type="number" name="number" placeholder="Enter Phone Number" required>
+        <button type="submit" class="custom-btn">Submit</button>
+    </form>
+
 </body>
 
 </html>
