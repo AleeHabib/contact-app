@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add a new contact</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+
+
     <style>
         body {
             margin: 0;
@@ -13,7 +16,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
         }
 
         .top-btn {
@@ -79,9 +82,9 @@
         <a href="{{url_for('delete_contact')}}" class="top-btn">Delete</a>
     </div>
     <form class="form-container" method="POST" action="{{ url_for('add_contact') }}">
-        <input type="text" name="name" placeholder="Enter Name" required>
-        <input type="number" name="number" placeholder="Enter Phone Number" required>
-        <button type="submit" class="custom-btn">Submit</button>
+        <input type="text" name="name" placeholder="Enter Name" style="font-family: poppins;" required>
+        <input type="number" name="number" placeholder="Enter Phone Number" style="font-family: poppins;" required>
+        <button type="submit" class="custom-btn" style="font-family: poppins;">Submit</button>
     </form>
 
 </body>

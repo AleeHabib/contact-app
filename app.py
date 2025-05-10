@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 
 app = Flask(__name__)
+
+app.secret_key = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 contacts = []
 
@@ -17,6 +19,7 @@ def add_contact():
         name = request.form["name"]
         number = request.form["number"]
         contacts.append({"name": name, "no": number})
+        flash("Contact added successfully", "success")
         return redirect(
             url_for("read_contacts")
         )  # user will be redirected to the contacts page
@@ -33,8 +36,17 @@ def update_contact():
     return render_template("update.html")
 
 
-@app.route("/delete")  # deletes an existing contact
+@app.route("/delete", methods=["GET", "POST"])  # deletes an existing contact
 def delete_contact():
+    if request.method == "POST":
+        name = request.form["name"]
+        for contact in contacts:
+            if name == contact["name"]:
+                contacts.remove(contact)
+                flash("Contact deleted successfully", "success")
+                return redirect(url_for("read_contacts"))
+        flash("Contact does not exist", "error")
+        return redirect(url_for("delete_contact"))
     return render_template("delete.html")
 
 
