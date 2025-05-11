@@ -18,7 +18,13 @@ def add_contact():
     if request.method == "POST":
         name = request.form["name"]
         number = request.form["number"]
-        contacts.append({"name": name, "no": number})
+        if not number.isdigit() or len(number) != 11:
+            flash(
+                "Invalid number: must be 11 digits only",
+                "error",
+            )
+            return redirect(url_for("add_contact"))
+        contacts.append({"name": name, "number": number})
         flash("Contact added successfully", "success")
         return redirect(
             url_for("read_contacts")
@@ -31,8 +37,27 @@ def read_contacts():
     return render_template("read.html", contacts=contacts)
 
 
-@app.route("/update")  # updates an existing contact
+@app.route("/update", methods=["GET", "POST"])
 def update_contact():
+    if request.method == "POST":
+        name = request.form["name"]
+        number = request.form["number"]
+        if not number.isdigit() or len(number) != 11:
+            flash(
+                "Invalid number: must be 11 digits only",
+                "error",
+            )
+            return redirect(url_for("update_contact"))
+        for contact in contacts:
+            if name == contact["name"]:
+                contact["number"] = number
+                flash("Contact successfully updated", "success")
+                return redirect(url_for("read_contacts"))
+
+        flash("Contact not found", "error")
+        return redirect(url_for("update_contact"))
+
+    # This handles GET requests safely
     return render_template("update.html")
 
 

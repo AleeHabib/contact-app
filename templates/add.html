@@ -38,7 +38,7 @@
             padding: 30px 40px;
             border-radius: 10px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            width: 320px;
+            width: 385px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -70,10 +70,114 @@
             cursor: pointer;
             font-size: 15px;
         }
+
+        #flash-container {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .flash-message {
+            background-color: #fa7676;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            min-width: 200px;
+            max-width: 500px;
+            font-size: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            position: relative;
+        }
+
+        .flash-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .flash-content p {
+            margin: 0;
+        }
+
+        .flash-timer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background-color: white;
+            width: 100%;
+            animation: deplete 4s linear forwards;
+        }
+
+        .flash-close {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 25px;
+            cursor: pointer;
+            transition: transform 0.3s ease, color 0.3s ease;
+            align-self: center;
+        }
+
+        .flash-close:hover {
+            transform: rotate(90deg) scale(1.2);
+            color: #ffffffaa;
+        }
+
+        @keyframes deplete {
+            from {
+                width: 100%;
+            }
+
+            to {
+                width: 0%;
+            }
+        }
     </style>
+    <script>
+        setTimeout(() => {
+            const flash = document.querySelector("#flash-container");
+            if (flash) {
+                flash.style.display = "none";
+            }
+        }, 4000);
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const closeButtons = document.querySelectorAll(".flash-close");
+            closeButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    const flashBox = button.closest(".flash-message");
+                    if (flashBox) flashBox.remove();
+                });
+            });
+        });
+    </script>
 </head>
 
 <body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div id="flash-container">
+        {% for category, message in messages %}
+        <div class="flash-message {{ category }}">
+            <div class="flash-content">
+                <p>{{ message }}</p>
+                <button class="flash-close">&times;</button>
+            </div>
+            <div class="flash-timer"></div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
     <h2>Add a new contact</h2>
     <div class="button-container">
         <a href="{{url_for('home')}}" class="top-btn">Home</a>
@@ -83,7 +187,7 @@
     </div>
     <form class="form-container" method="POST" action="{{ url_for('add_contact') }}">
         <input type="text" name="name" placeholder="Enter Name" style="font-family: poppins;" required>
-        <input type="number" name="number" placeholder="Enter Phone Number" style="font-family: poppins;" required>
+        <input type="text" name="number" placeholder="03XXXXXXXXX" style="font-family: poppins;" required>
         <button type="submit" class="custom-btn" style="font-family: poppins;">Submit</button>
     </form>
 

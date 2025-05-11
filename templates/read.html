@@ -18,10 +18,33 @@
             font-family: 'Poppins', sans-serif;
         }
 
+        .form-container {
+            background-color: white;
+            padding: 20px 40px;
+            padding-bottom: 5px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 450px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .form-container h3 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+
         .table-container {
             margin-top: 20px;
             width: 30%;
             max-width: 600px;
+        }
+
+        table {
+            width: 100%;
+            font-size: 15px;
         }
 
 
@@ -88,7 +111,7 @@
             background: transparent;
             border: none;
             color: white;
-            font-size: 18px;
+            font-size: 25px;
             cursor: pointer;
             transition: transform 0.3s ease, color 0.3s ease;
             align-self: center;
@@ -148,7 +171,9 @@
     </div>
     {% endif %}
     {% endwith %}
-    <h2>Your Contacts</h2>
+
+
+    <h2>Read Contacts</h2>
     <div class="button-container">
         <a href="{{url_for('home')}}" class="top-btn">Home</a>
         <a href="{{url_for('add_contact')}}" class="top-btn">Add</a>
@@ -156,7 +181,7 @@
         <a href="{{url_for('delete_contact')}}" class="top-btn">Delete</a>
     </div>
 
-    <div class="table-container">
+    <div class="form-container">
         <table class="table table-bordered">
             <thead>
                 {% if contacts %}
@@ -167,23 +192,22 @@
                 </tr>
             </thead>
             <tbody>
-
                 {% for contact in contacts %}
                 <tr>
                     <td>{{loop.index}}</td>
                     <td>{{contact["name"]}}</td>
-                    <td>{{contact["no"]}}</td>
+                    <td>{{contact["number"]}}</td>
                 </tr>
                 {% endfor %}
                 {% else %}
                 <tr>
                     <td colspan="3" class="text-center">There are no contacts</td>
                 </tr>
-
+                {% endif %}
             </tbody>
-            {% endif %}
         </table>
     </div>
+
 </body>
 
 </html>
