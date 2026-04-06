@@ -19,10 +19,17 @@
             font-family: 'Poppins', sans-serif;
         }
 
+        .us-navbar {
+            position: fixed;
+            top: 0px;
+            left: 10px;
+            padding: 5px 15px;
+        }
+
         .lg-btn {
             position: fixed;
-            top: 10px;
-            right: 10px;
+            top: 20px;
+            right: 20px;
             background-color: #6b1d1d;
             color: white;
             padding: 10px 15px;
@@ -191,10 +198,13 @@
     </div>
     {% endif %}
     {% endwith %}
+    <div class="us-navbar">
+        <h3 class="us-navbar">{{username}}</h3>
+    </div>
     <div class="lg-btn">
         <a href="{{url_for('logout_account')}}" class="lg-btn">Logout</a>
     </div>
-    <h2>Add a new contact</h2>
+    <h3>Add a new contact</h3>
     <div class="button-container">
         <a href="{{url_for('home')}}" class="top-btn">Home</a>
         <a href="{{url_for('read_contacts')}}" class="top-btn">Read</a>

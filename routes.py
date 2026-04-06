@@ -20,7 +20,7 @@ with app.app_context():
 def home():
     if "user_id" not in session:
         return render_template("login.html")
-    return render_template("home.html")
+    return render_template("home.html", username=session.get("user_name"))
 
 
 @app.route("/add", methods=["GET", "POST"])
@@ -36,19 +36,23 @@ def add_contact():
                 "error",
             )
             return redirect(url_for("add_contact"))
-        contacts.append({"name": name, "number": number})
+        contacts.append(
+            {"user_id": session.get("user_id"), "name": name, "number": number}
+        )
         flash("Contact added successfully", "success")
         return redirect(
             url_for("read_contacts")
         )  # user will be redirected to the contacts page
-    return render_template("add.html")
+    return render_template("add.html", username=session.get("user_name"))
 
 
 @app.route("/read")  # display all contacts
 def read_contacts():
     if "user_id" not in session:
         return render_template("login.html")
-    return render_template("read.html", contacts=contacts)
+    user_id = session.get("user_id")
+    filtered = [contact for contact in contacts if contact["user_id"] == user_id]
+    return render_template("read.html", contacts=filtered)
 
 
 @app.route("/update", methods=["GET", "POST"])
@@ -64,7 +68,9 @@ def update_contact():
                 "error",
             )
             return redirect(url_for("update_contact"))
-        for contact in contacts:
+        user_id = session.get("user_id")
+        filtered = [contact for contact in contacts if contact["user_id"] == user_id]
+        for contact in filtered:
             if name == contact["name"]:
                 contact["number"] = number
                 flash("Contact successfully updated", "success")
@@ -83,13 +89,16 @@ def delete_contact():
         return render_template("login.html")
     if request.method == "POST":
         name = request.form["name"]
-        for contact in contacts:
+        user_id = session.get("user_id")
+        filtered = [contact for contact in contacts if contact["user_id"] == user_id]
+        for contact in filtered:
             if name == contact["name"]:
                 contacts.remove(contact)
                 flash("Contact deleted successfully", "success")
                 return redirect(url_for("read_contacts"))
         flash("Contact does not exist", "error")
         return redirect(url_for("delete_contact"))
+
     return render_template("delete.html")
 
 
@@ -104,8 +113,9 @@ def login_account():
             if user:
                 if bcrypt.checkpw(password.encode("utf-8"), user.password):
                     session["user_id"] = user.id
+                    session["user_name"] = user.name
                     flash(f"Welcome {user.name}", "success")
-                    return render_template("home.html", user=session.get("user"))
+                    return redirect(url_for("home"))
                 else:
                     flash("Invalid username or password", "error")
                     return redirect(url_for("login_account"))
