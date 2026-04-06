@@ -1,5 +1,5 @@
 from flask import Flask, session, render_template, request, redirect, url_for, flash
-from models import db, User
+from models import db, User, Contact
 import bcrypt
 
 app = Flask(__name__)
@@ -36,9 +36,12 @@ def add_contact():
                 "error",
             )
             return redirect(url_for("add_contact"))
-        contacts.append(
-            {"user_id": session.get("user_id"), "name": name, "number": number}
-        )
+        contact = Contact(name=name, number=number, user_id=session.get("user_id"))
+        db.session.add(contact)
+        db.session.commit()
+        # contacts.append(
+        #     {"user_id": session.get("user_id"), "name": name, "number": number}
+        # )
         flash("Contact added successfully", "success")
         return redirect(
             url_for("read_contacts")
@@ -51,8 +54,9 @@ def read_contacts():
     if "user_id" not in session:
         return render_template("login.html")
     user_id = session.get("user_id")
-    filtered = [contact for contact in contacts if contact["user_id"] == user_id]
-    return render_template("read.html", contacts=filtered)
+    contacts = Contact.query.filter_by(user_id=user_id)
+    # filtered = [contact for contact in contacts if contact["user_id"] == user_id]
+    return render_template("read.html", contacts=contacts)
 
 
 @app.route("/update", methods=["GET", "POST"])
@@ -69,10 +73,11 @@ def update_contact():
             )
             return redirect(url_for("update_contact"))
         user_id = session.get("user_id")
-        filtered = [contact for contact in contacts if contact["user_id"] == user_id]
-        for contact in filtered:
-            if name == contact["name"]:
-                contact["number"] = number
+        contacts = Contact.query.filter_by(user_id=user_id)
+        for contact in contacts:
+            if name == contact.name:
+                contact.number = number
+                db.session.commit()
                 flash("Contact successfully updated", "success")
                 return redirect(url_for("read_contacts"))
 
@@ -90,10 +95,11 @@ def delete_contact():
     if request.method == "POST":
         name = request.form["name"]
         user_id = session.get("user_id")
-        filtered = [contact for contact in contacts if contact["user_id"] == user_id]
-        for contact in filtered:
-            if name == contact["name"]:
-                contacts.remove(contact)
+        contacts = Contact.query.filter_by(user_id=user_id)
+        for contact in contacts:
+            if name == contact.name:
+                db.session.delete(contact)
+                db.session.commit()
                 flash("Contact deleted successfully", "success")
                 return redirect(url_for("read_contacts"))
         flash("Contact does not exist", "error")
