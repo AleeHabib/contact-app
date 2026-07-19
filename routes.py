@@ -1,4 +1,13 @@
-from flask import Flask, session, render_template, request, redirect, url_for, flash
+from flask import (
+    Flask,
+    session,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    flash,
+    jsonify,
+)
 from models import db, User, Contact
 import bcrypt
 
@@ -49,14 +58,24 @@ def add_contact():
     return render_template("add.html", username=session.get("user_name"))
 
 
-@app.route("/read")  # display all contacts
+@app.route("/api/contacts")  # display all contacts
+def api_contacts():
+    user_id = session.get("user_id")
+    contacts = Contact.query.filter_by(user_id=user_id).all()
+    # filtered = [contact for contact in contacts if contact["user_id"] == user_id]
+    contacts_list = list()
+    for contact in contacts:
+        contacts_list.append(
+            {"contact_name": contact.name, "contact_number": contact.number}
+        )
+    return jsonify(contacts_list)
+
+
+@app.route("/read")
 def read_contacts():
     if "user_id" not in session:
         return render_template("login.html")
-    user_id = session.get("user_id")
-    contacts = Contact.query.filter_by(user_id=user_id)
-    # filtered = [contact for contact in contacts if contact["user_id"] == user_id]
-    return render_template("read.html", contacts=contacts)
+    return render_template("read.html")
 
 
 @app.route("/update", methods=["GET", "POST"])
@@ -137,11 +156,16 @@ def login_account():
 def register_account():
     if "user_id" not in session:
         if request.method == "POST":
+            email = request.form["Email"].lower()
+            user = User.query.filter_by(email=email).first()
+            if user:
+                flash("Account already exists", "error")
+                return redirect(url_for("register_account"))
+
             password = request.form["Password"]
             c_password = request.form["C_Password"]
             if password == c_password:
                 name = request.form["Name"]
-                email = (request.form["Email"]).lower()
                 hashed_password = bcrypt.hashpw(
                     (request.form["Password"]).encode("utf-8"), bcrypt.gensalt()
                 )

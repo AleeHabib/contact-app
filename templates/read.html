@@ -198,31 +198,17 @@
 
     <div class="form-container">
         <table class="table table-bordered">
-            <thead>
-                {% if contacts %}
-                <tr>
-                    <th>#</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Number</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for contact in contacts %}
-                <tr>
-                    <td>{{loop.index}}</td>
-                    <td>{{contact["name"]}}</td>
-                    <td>{{contact["number"]}}</td>
-                </tr>
-                {% endfor %}
-                {% else %}
-                <tr>
-                    <td colspan="3" class="text-center">There are no contacts</td>
-                </tr>
-                {% endif %}
+
+
+            <tbody id="contacts-body">
+
             </tbody>
+
+
         </table>
     </div>
-
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
+
 
 </html>
