@@ -19,7 +19,6 @@ app.config.from_object(Config)
 
 db.init_app(app)
 
-contacts = []
 
 with app.app_context():
     db.create_all()
@@ -32,43 +31,63 @@ def home():
     return render_template("home.html", username=session.get("user_name"))
 
 
-@app.route("/add", methods=["GET", "POST"])
-def add_contact():
-    if "user_id" not in session:
-        return render_template("login.html")
+@app.route(
+    "/api/contacts", methods=["GET", "POST", "DELETE", "PATCH"]
+)  # display all contacts
+def api_contacts():
+
+    if request.method == "GET":
+        user_id = session.get("user_id")
+        contacts = Contact.query.filter_by(user_id=user_id).all()
+        # filtered = [contact for contact in contacts if contact["user_id"] == user_id]
+        return jsonify(
+            [{"name": contact.name, "number": contact.number} for contact in contacts]
+        )
+
     if request.method == "POST":
-        name = request.form["name"]
-        number = request.form["number"]
-        if not number.isdigit() or len(number) != 11:
-            flash(
-                "Invalid number: must be 11 digits only",
-                "error",
-            )
-            return redirect(url_for("add_contact"))
+        data = request.get_json()
+
+        name = data.get("name")
+        number = data.get("number")
+
         contact = Contact(name=name, number=number, user_id=session.get("user_id"))
         db.session.add(contact)
         db.session.commit()
-        # contacts.append(
-        #     {"user_id": session.get("user_id"), "name": name, "number": number}
-        # )
-        flash("Contact added successfully", "success")
-        return redirect(
-            url_for("read_contacts")
-        )  # user will be redirected to the contacts page
-    return render_template("add.html", username=session.get("user_name"))
+
+        return jsonify({"message": "contact added"}), 201
+
+    if request.method == "DELETE":
+        data = request.get_json()
+
+        name = data.get("name")
+
+        contact = Contact.query.filter_by(
+            name=name, user_id=session.get("user_id")
+        ).first()
+
+        db.session.delete(contact)
+        db.session.commit()
+
+        return jsonify({"message": "contact deleted"}), 201
+
+    if request.method == "PATCH":
+        data = request.get_json()
+
+        name = data.get("name")
+        number = data.get("number")
+
+        contact = Contact.query.filter_by(name=name).first()
+        contact.number = number
+        db.session.commit()
+
+        return jsonify({"message": "contact updated"}), 201
 
 
-@app.route("/api/contacts")  # display all contacts
-def api_contacts():
-    user_id = session.get("user_id")
-    contacts = Contact.query.filter_by(user_id=user_id).all()
-    # filtered = [contact for contact in contacts if contact["user_id"] == user_id]
-    contacts_list = list()
-    for contact in contacts:
-        contacts_list.append(
-            {"contact_name": contact.name, "contact_number": contact.number}
-        )
-    return jsonify(contacts_list)
+@app.route("/add")
+def add_contact():
+    if "user_id" not in session:
+        return render_template("login.html")
+    return render_template("add.html")
 
 
 @app.route("/read")
@@ -78,53 +97,20 @@ def read_contacts():
     return render_template("read.html")
 
 
-@app.route("/update", methods=["GET", "POST"])
-def update_contact():
-    if "user_id" not in session:
-        return render_template("login.html")
-    if request.method == "POST":
-        name = request.form["name"]
-        number = request.form["number"]
-        if not number.isdigit() or len(number) != 11:
-            flash(
-                "Invalid number: must be 11 digits only",
-                "error",
-            )
-            return redirect(url_for("update_contact"))
-        user_id = session.get("user_id")
-        contacts = Contact.query.filter_by(user_id=user_id)
-        for contact in contacts:
-            if name == contact.name:
-                contact.number = number
-                db.session.commit()
-                flash("Contact successfully updated", "success")
-                return redirect(url_for("read_contacts"))
-
-        flash("Contact not found", "error")
-        return redirect(url_for("update_contact"))
-
-    # This handles GET requests safely
-    return render_template("update.html")
-
-
-@app.route("/delete", methods=["GET", "POST"])  # deletes an existing contact
+@app.route("/delete")  # deletes an existing contact
 def delete_contact():
     if "user_id" not in session:
         return render_template("login.html")
-    if request.method == "POST":
-        name = request.form["name"]
-        user_id = session.get("user_id")
-        contacts = Contact.query.filter_by(user_id=user_id)
-        for contact in contacts:
-            if name == contact.name:
-                db.session.delete(contact)
-                db.session.commit()
-                flash("Contact deleted successfully", "success")
-                return redirect(url_for("read_contacts"))
-        flash("Contact does not exist", "error")
-        return redirect(url_for("delete_contact"))
 
     return render_template("delete.html")
+
+
+@app.route("/update")
+def update_contact():
+    if "user_id" not in session:
+        return render_template("login.html")
+
+    return render_template("update.html")
 
 
 @app.route("/")

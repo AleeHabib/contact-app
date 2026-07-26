@@ -24,9 +24,11 @@ fetch("/api/contacts")
             list.innerHTML += `
                 <tr>
                     <td>${index + 1}</td>
-                    <td>${contact.contact_name}</td>
-                    <td>${contact.contact_number}</td>
+                    <td>${contact.name}</td>
+                    <td>${contact.number}</td>
                 </tr>
             `;
         });
     });
+
+console.log("Read API executed")

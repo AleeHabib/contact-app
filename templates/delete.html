@@ -209,10 +209,11 @@
         <a href="{{url_for('read_contacts')}}" class="top-btn">Read</a>
         <a href="{{url_for('update_contact')}}" class="top-btn">Update</a>
     </div>
-    <form class="form-container" method="POST" action="{{ url_for('delete_contact') }}">
-        <input type="text" name="name" placeholder="Enter Name" style="font-family: poppins;" required>
+    <form class="form-container" method="POST" id="delete-form" action="{{ url_for('delete_contact') }}">
+        <input type="text" id="name" name="name" placeholder="Enter Name" style="font-family: poppins;" required>
         <button type="submit" class="custom-btn" style="font-family: poppins;">Submit</button>
     </form>
+    <script src="{{url_for('static',filename='js/delete.js')}}"></script>
 </body>
 
 </html>
